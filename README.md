@@ -12,6 +12,9 @@ var obj = {
   },
   bar: function (callback) {
     callback(this.x);
+  },
+  baz: function () {
+    return this.x;
   }
 };
 
@@ -23,8 +26,13 @@ var recv = function (callback) {
   });
 };
 
+// function that creates deferred object, I'm using Q
+var makeDeferred = function () {
+  return Q.defer();
+};
+
 // create a Tap class
-var Tap = tapFactory(send, recv);
+var Tap = tapFactory(send, recv, makeDeferred);
 
 // create a Tap instance wrapping the obj
 var tap = new Tap(obj);
@@ -45,18 +53,31 @@ var recv = function (callback) {
   worker.onmessage = callback;
 };
 
+// create deferred function
+var makeDeferred = function () {
+  return Q.defer();
+};
+
 // create Tap class
-var Tap = tapFactory(send, recv);
+var Tap = tapFactory(send, recv, makeDeferred);
 
 // create Tap instance
+// we can use this as a proxy to the remote obj
 var tap = new Tap();
 
 // register methods available on remote object
-tap.register("foo", "bar");
+tap.register("foo", "bar", "baz");
 
 // invoke
 tap.foo();
+
+// callbacks are handled automagically
 tap.bar(function (x) {
+  console.log("x:", x);
+});
+
+// invcations return promises which resolve to the invoked function's return value
+tap.baz().then(function (x) {
   console.log("x:", x);
 });
 
