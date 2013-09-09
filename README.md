@@ -1,4 +1,4 @@
-# TAP: Transport Agnostic Object Proxy
+# TAP: Transport Agnostic Object Proxy (WIP)
 
 **worker.js**
 
