@@ -26,7 +26,7 @@ var recv = function (callback) {
   });
 };
 
-// function that creates deferred object, I'm using Q
+// function that creates deferred object, I'm using Q https://github.com/kriskowal/q
 var makeDeferred = function () {
   return Q.defer();
 };
