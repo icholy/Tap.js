@@ -1,6 +1,4 @@
-# COM.js
-
-> transport agnostic communication
+# TAP: Transport Agnostic Object Proxy
 
 **worker.js**
 
@@ -25,11 +23,11 @@ var recv = function (callback) {
   });
 };
 
-// create a Com class
-var Com = comFactory(send, recv);
+// create a Tap class
+var Tap = tapFactory(send, recv);
 
-// create a Com instance wrapping the obj
-var com = new Com(obj);
+// create a Tap instance wrapping the obj
+var tap = new Tap(obj);
 ```
 
 **main.js**
@@ -47,18 +45,18 @@ var recv = function (callback) {
   worker.onmessage = callback;
 };
 
-// create Com class
-var Com = comFactory(send, recv);
+// create Tap class
+var Tap = tapFactory(send, recv);
 
-// create Com instance
-var com = new Com();
+// create Tap instance
+var tap = new Tap();
 
 // register methods available on remote object
-com.register("foo", "bar");
+tap.register("foo", "bar");
 
 // invoke
-com.foo();
-com.bar(function (x) {
+tap.foo();
+tap.bar(function (x) {
   console.log("x:", x);
 });
 

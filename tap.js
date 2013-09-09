@@ -1,10 +1,10 @@
 
 
-var comFactory = function (send, recv) {
+var tapFactory = function (send, recv) {
 
   var IdGeneraor = (function () {
 
-    // http://stackoverflow.com/a/6249043/215969
+    // http://stackoverflow.tap/a/6249043/215969
     var IdGeneraor = function IdGeneraor () {
       this._nextIndex = [0, 0, 0];
       this._chars     = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -48,14 +48,14 @@ var comFactory = function (send, recv) {
       return x && x.type === CALLBACK;
     };
 
-    var Com = function (obj) {
+    var Tap = function (obj) {
       this._obj       = obj;
       this._callbacks = {};
       this._generator = new IdGeneraor();
       recv(this.onMessage.bind(this));
     };
 
-    Com.prototype.onMessage = function (msg) {
+    Tap.prototype.onMessage = function (msg) {
       switch (msg.type) {
 
         // other end invoked a passed callback
@@ -78,19 +78,19 @@ var comFactory = function (send, recv) {
       }
     };
 
-    Com.prototype.serializeCallback = function (callback) {
+    Tap.prototype.serializeCallback = function (callback) {
       var id = this._generator.next();
       this._callbacks[id] = callback;
       return { type: CALLBACK, id: id };
     };
 
-    Com.prototype.serializeArguments = function (args) {
+    Tap.prototype.serializeArguments = function (args) {
       return args.map(function (arg) {
         return isFunction(arg) ? this.serializeCallback(arg) : arg;
       }.bind(this));
     };
 
-    Com.prototype.deserializeCallback = function (arg) {
+    Tap.prototype.deserializeCallback = function (arg) {
       return function () {
         send({ 
           type : CALLBACK,
@@ -100,13 +100,13 @@ var comFactory = function (send, recv) {
       };
     };
 
-    Com.prototype.deserializeArguments = function (args) {
+    Tap.prototype.deserializeArguments = function (args) {
       return args.map(function (arg) {
         return isSerializedCallback(arg) ? this.deserializeCallback(arg) : arg;
       }.bind(this));
     };
 
-    Com.prototype.invokeFn = function (name) {
+    Tap.prototype.invokeFn = function (name) {
       return function () {
         var args       = toArray(arguments),
             serialized = this.serializeArguments(args);
@@ -118,19 +118,19 @@ var comFactory = function (send, recv) {
       };
     };
 
-    Com.prototype.register = function () {
+    Tap.prototype.register = function () {
       toArray(arguments).reduce(function (acc, methodName) {
         acc[methodName] = acc.invokeFn(methodName);
         return acc;
       }, this);
     };
 
-    return Com;
+    return Tap;
 
   }).call(null);
 
 };
 
 if (typeof module !== "undefined") {
-  module.exports = comFactory;
+  module.exports = tapFactory;
 }

@@ -1,7 +1,7 @@
 {
-  "name": "com.js",
+  "name": "tap.js",
   "version": "0.0.0",
-  "description": "Web Worker Proxy",
+  "description": "Transport Agnostic Object Proxy",
   "main": "index.js",
   "directories": {
     "test": "test"
