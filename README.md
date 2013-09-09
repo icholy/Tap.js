@@ -50,7 +50,9 @@ var send = function (msg) {
   worker.postMessage(msg);
 };
 var recv = function (callback) {
-  worker.onmessage = callback;
+  worker.onmessage = function (e) {
+    callback(e.data);
+  };
 };
 
 // create deferred function
