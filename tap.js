@@ -1,10 +1,9 @@
 
-
 var tapFactory = function (send, recv, makeDeferred) {
 
   var IdGeneraor = (function () {
 
-    // http://stackoverflow.tap/a/6249043/215969
+    // http://stackoverflow.com/a/6249043/215969
     var IdGeneraor = function IdGeneraor () {
       this._nextIndex = [0, 0, 0];
       this._chars     = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
