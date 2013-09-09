@@ -1,6 +1,6 @@
 
 
-var tapFactory = function (send, recv) {
+var tapFactory = function (send, recv, makeDeferred) {
 
   var IdGeneraor = (function () {
 
@@ -34,7 +34,8 @@ var tapFactory = function (send, recv) {
   return (function () {
 
     var CALLBACK = 0,
-        INVOKE   = 1;
+        INVOKE   = 1,
+        RETURN   = 2;
 
     var isFunction = function (x) {
       return Object.prototype.toString.call(x) === "[object Function]";
@@ -68,8 +69,21 @@ var tapFactory = function (send, recv) {
         // other end invoked a method
         case INVOKE:
           var that = this._obj,
-              args = this.deserializeArguments(msg.args);
-          that[msg.method].apply(that, args);
+              args = this.deserializeArguments(msg.args),
+              ret  = that[msg.method].apply(that, args);
+          send({
+            type : RETURN,
+            id   : msg.id,
+            ret  : isFunction(ret) ? this.serializeCallback(ret) : ret
+          });
+          break;
+
+        // other end return value for an invoke
+        case RETURN:
+          var ret = this.isSerializedCallback(msg.ret) ? this.deserializeCallback(msg.ret) : ret,
+              id  = msg.id;
+          this._callbacks[id].call(null, ret);
+          delete this._callbacks[id];
           break;
 
         // other end is screwing around
@@ -113,12 +127,16 @@ var tapFactory = function (send, recv) {
     Tap.prototype.invokeFn = function (name) {
       return function () {
         var args       = toArray(arguments),
-            serialized = this.serializeArguments(args);
+            serialized = this.serializeArguments(args),
+            deferred   = makeDeferred(),
+            id         = this._generator.next();
+        this._callbacks[id] = deferred.resolve.bind(deferred);
         send({ 
           type   : INVOKE,
           method : name,
           args   : serialized
         });
+        return deferred.promise;
       };
     };
 
