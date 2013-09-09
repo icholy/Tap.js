@@ -60,14 +60,16 @@ var tapFactory = function (send, recv) {
 
         // other end invoked a passed callback
         case CALLBACK:
-          this._callbacks[msg.id].apply(null, msg.args);
+          var args = this.deserializeArguments(msg.args);
+          this._callbacks[msg.id].apply(null, args);
           delete this._callbacks[msg.id];
           break;
 
         // other end invoked a method
         case INVOKE:
-          var that = this._obj;
-          that[msg.method].apply(that, msg.args);
+          var that = this._obj,
+              args = this.deserializeArguments(msg.args);
+          that[msg.method].apply(that, args);
           break;
 
         // other end is screwing around
@@ -91,11 +93,13 @@ var tapFactory = function (send, recv) {
     };
 
     Tap.prototype.deserializeCallback = function (arg) {
+      var _this = this;
       return function () {
+        var args = toArray(arguments);
         send({ 
           type : CALLBACK,
           id   : arg.id,
-          args : toArray(arguments)
+          args : _this.serializeArguments(args);
         });
       };
     };
