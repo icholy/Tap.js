@@ -111,11 +111,11 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
 
         // other end return value for an invoke
         case RETURN:
-          var ret = this.isSerializedCallback(msg.ret) ? this.deserializeCallback(msg.ret) : ret,
-              id  = msg.id,
-              cb  = this._callbacks[id];
-          if (!isNull(cb)) {
-            cb.call(null, ret);
+          var ret      = isSerializedCallback(msg.ret) ? this.deserializeCallback(msg.ret) : msg.ret,
+              id       = msg.id,
+              deferred = this._callbacks[id];
+          if (!isNull(deferred)) {
+            deferred.resolve(ret);
           }
           delete this._callbacks[id];
           break;
@@ -168,7 +168,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
         send({ 
           type : CALLBACK,
           id   : arg.id,
-          args : _this.serializeArguments(args);
+          args : _this.serializeArguments(args)
         });
       };
     };
@@ -201,7 +201,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
             id         = this._generator.next(),
             promise;
         if (!isNull(deferred)) {
-          this._callbacks[id] = deferred.resolve.bind(deferred);
+          this._callbacks[id] = deferred;
           promise = deferred.promise;
         } else {
           this._callbacks[id] = null;
@@ -209,6 +209,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
         send({ 
           type   : INVOKE,
           method : name,
+          id     : id,
           args   : serialized
         });
         return promise;
