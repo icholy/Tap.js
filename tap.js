@@ -6,11 +6,23 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
   var IdGeneraor = (function () {
 
     // http://stackoverflow.com/a/6249043/215969
+
+    /**
+     * unique id string generator
+     *
+     * @class IdGeneraor
+     */
     var IdGeneraor = function IdGeneraor () {
       this._nextIndex = [0, 0, 0];
       this._chars     = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     };
 
+    /**
+     * get the next id string
+     *
+     * @method next
+     * @return {String} id
+     */
     IdGeneraor.prototype.next = function() {
       var a   = this._nextIndex[0],
           b   = this._nextIndex[1],
@@ -38,6 +50,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
         INVOKE   = 1,
         RETURN   = 2;
 
+    // helper functions
     var isFunction = function (x) {
       return Object.prototype.toString.call(x) === "[object Function]";
     };
@@ -54,6 +67,12 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       return x === null;
     };
 
+    /**
+     * transport agnostic object proxy
+     *
+     * @class Tap
+     * @param {Object} obj - object that gets proxied
+     */
     var Tap = function (obj) {
       this._obj       = obj;
       this._callbacks = {};
@@ -61,6 +80,12 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       recv(this.onMessage.bind(this));
     };
 
+    /**
+     * handles all incoming messages
+     *
+     * @method onMessage
+     * @param {Object} msg - message
+     */
     Tap.prototype.onMessage = function (msg) {
       switch (msg.type) {
 
@@ -102,18 +127,39 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       }
     };
 
+    /**
+     * serialize a callback parameter
+     *
+     * @method serializeCallback
+     * @param {Function} callback - callback function
+     * @return {Object} object containing the callback id
+     */
     Tap.prototype.serializeCallback = function (callback) {
       var id = this._generator.next();
       this._callbacks[id] = callback;
       return { type: CALLBACK, id: id };
     };
 
+    /**
+     * serialize array of arguments
+     *
+     * @method serializeArguments
+     * @param {Array} args - arguments
+     * @return {Array} serialized arguments
+     */
     Tap.prototype.serializeArguments = function (args) {
       return args.map(function (arg) {
         return isFunction(arg) ? this.serializeCallback(arg) : arg;
       }.bind(this));
     };
 
+    /**
+     * deserialize a serialized callback parameter into a callable function
+     *
+     * @method deserializeCallback
+     * @param {Object} arg - serialized callback
+     * @return {Function} callable function
+     */
     Tap.prototype.deserializeCallback = function (arg) {
       var _this = this;
       return function () {
@@ -126,12 +172,26 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       };
     };
 
+    /**
+     * deserialize arguments array
+     *
+     * @method deserializeArguments
+     * @param {Array} args - serialized arguments
+     * @return {Array} deserialize arguments
+     */
     Tap.prototype.deserializeArguments = function (args) {
       return args.map(function (arg) {
         return isSerializedCallback(arg) ? this.deserializeCallback(arg) : arg;
       }.bind(this));
     };
 
+    /**
+     * create a method that is proxied to the remote object
+     *
+     * @method invokeFn
+     * @param {String} name - remote method name
+     * @return {Function} proxy method
+     */
     Tap.prototype.invokeFn = function (name) {
       return function () {
         var args       = toArray(arguments),
@@ -154,7 +214,13 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       };
     };
 
-    Tap.prototype.register = function () {
+    /**
+     * register available proxy methods
+     *
+     * @method register
+     * @param {String} name - method name
+     */
+    Tap.prototype.register = function (/* name, ... */) {
       toArray(arguments).reduce(function (acc, methodName) {
         acc[methodName] = acc.invokeFn(methodName);
         return acc;
