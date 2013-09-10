@@ -48,6 +48,7 @@ local.register("foo", "bar", "baz");
 local.foo();
 
 // callbacks are handled automagically
+// Note: they only work for 1 invocation
 local.bar(function (x) {
   console.log("x:", x);
 });
