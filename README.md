@@ -53,7 +53,7 @@ local.bar(function (x) {
 });
 
 // invcations return promises which resolve to the invoked function's return value
-// this will only work if a makeDefered function was provided to the factory
+// this will only work if a makeDeferred function was provided to the factory
 local.baz().then(function (x) {
   console.log("x:", x);
 });
