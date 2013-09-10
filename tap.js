@@ -5,10 +5,11 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
 
   var IdGeneraor = (function () {
 
-    // http://stackoverflow.com/a/6249043/215969
 
     /**
      * unique id string generator
+     * 
+     * credit: http://stackoverflow.com/a/6249043/215969
      *
      * @class IdGeneraor
      */
