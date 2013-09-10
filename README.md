@@ -46,9 +46,7 @@ var tap = new Tap(obj);
 var worker = new Worker("worker.js");
 
 // define the send recieve methods
-var send = function (msg) {
-  worker.postMessage(msg);
-};
+var send = worker.postMessage.bind(worker);
 var recv = function (callback) {
   worker.onmessage = function (e) {
     callback(e.data);
