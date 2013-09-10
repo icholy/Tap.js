@@ -85,7 +85,7 @@ describe("Tap", function () {
     );
   });
 
-  it("should work with callbacks both ways", function (done) {
+  it("should work with callbacks in callback parameters", function (done) {
     local.bat(function (setX) { setX(5); });
     local.bar(function (x) {
       expect(x).to.equal(5);
