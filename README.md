@@ -32,10 +32,8 @@ var remote = new Remote(obj);
 // create the worker
 var worker = new Worker("worker.js");
 
-// create deferred function
-var makeDeferred = function () {
-  return Q.defer();
-};
+// create deferred function (optional)
+var makeDeferred = Q.defer.bind(Q);
 
 // create Tap class
 var Local = Tap.local(worker, makeDeferred);
@@ -55,6 +53,7 @@ local.bar(function (x) {
 });
 
 // invcations return promises which resolve to the invoked function's return value
+// this will only work if a makeDefered function was provided to the factory
 local.baz().then(function (x) {
   console.log("x:", x);
 });
