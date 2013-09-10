@@ -152,6 +152,32 @@ var tapFactory = function (send, recv, makeDeferred) {
 
 };
 
+var tapLocalWorkerFactory = function (worker, makeDeferred) {
+  var send = worker.postMessage.bind(worker);
+  var recv = function (callback) {
+    worker.onmessage = function (e) {
+      callback(e.data);
+    };
+  };
+  return tapFactory(send, recv, makeDeferred);
+};
+
+var tapRemoteWorkerFactory = function (makeDeferred) {
+  var send = postMessage;
+  var recv = function (callback) {
+    addEventListener("message", function (e) {
+      callback(e.data);
+    });
+  };
+  return tapFactory(send, recv, makeDeferred);
+};
+
+var Tap = {
+  factory: tapFactory,
+  local: tapLocalWorkerFactory,
+  remote: tapRemoteWorkerFactory
+};
+
 if (typeof module !== "undefined") {
-  module.exports = tapFactory;
+  module.exports = Tap;
 }
