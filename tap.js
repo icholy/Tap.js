@@ -255,9 +255,9 @@ var tapRemoteWorkerFactory = function (makeDeferred) {
 };
 
 var Tap = {
-  factory: tapFactory,
-  local: tapLocalWorkerFactory,
-  remote: tapRemoteWorkerFactory
+  factory : tapFactory,
+  local   : tapLocalWorkerFactory,
+  remote  : tapRemoteWorkerFactory
 };
 
 if (typeof module !== "undefined") {
