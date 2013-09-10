@@ -31,6 +31,7 @@ var obj = {
   baz   : function ()         { return this.x;    },
   bat   : function (callback) { callback(function (x) { this.x = x; }.bind(this)); },
   bap   : function (v)        { return function () { this.x = v; }.bind(this); },
+  poop  : function (cb1, cb2) { cb1(this.x); this.foo(); cb2(this.x); },
   reset : function ()         { this.x = 0;       }
 };
 
@@ -55,7 +56,7 @@ describe("Tap", function () {
     obj.reset();
     remote = new Remote(obj);
     local = new Local();
-    local.register("foo", "bar", "baz", "bat", "bap");
+    local.register("foo", "bar", "baz", "bat", "bap", "poop");
   });
 
   it("should be able to call a remote method", function () {
@@ -70,6 +71,18 @@ describe("Tap", function () {
       expect(x).to.equal(1);
       done();
     });
+  });
+
+  it("should work with multiple callbacks", function (done) {
+    local.poop(
+      function (x) {
+        expect(x).to.equal(0);
+      },
+      function (x) {
+        expect(x).to.equal(1);
+        done();
+      }
+    );
   });
 
   it("should work with callbacks both ways", function (done) {
