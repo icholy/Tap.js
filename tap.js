@@ -1,5 +1,7 @@
 
-var tapFactory = function (send, recv, makeDeferred) {
+var tapFactory = function (send, recv, makeDeferred, undefined) {
+
+  makeDeferred = makeDeferred || function () { return null; };
 
   var IdGeneraor = (function () {
 
@@ -48,6 +50,10 @@ var tapFactory = function (send, recv, makeDeferred) {
       return x && x.type === CALLBACK;
     };
 
+    var isNull = function (x) {
+      return x === null;
+    };
+
     var Tap = function (obj) {
       this._obj       = obj;
       this._callbacks = {};
@@ -80,8 +86,11 @@ var tapFactory = function (send, recv, makeDeferred) {
         // other end return value for an invoke
         case RETURN:
           var ret = this.isSerializedCallback(msg.ret) ? this.deserializeCallback(msg.ret) : ret,
-              id  = msg.id;
-          this._callbacks[id].call(null, ret);
+              id  = msg.id,
+              cb  = this._callbacks[id];
+          if (!isNull(cb)) {
+            cb.call(null, ret);
+          }
           delete this._callbacks[id];
           break;
 
@@ -128,14 +137,20 @@ var tapFactory = function (send, recv, makeDeferred) {
         var args       = toArray(arguments),
             serialized = this.serializeArguments(args),
             deferred   = makeDeferred(),
-            id         = this._generator.next();
-        this._callbacks[id] = deferred.resolve.bind(deferred);
+            id         = this._generator.next(),
+            promise;
+        if (!isNull(deferred)) {
+          this._callbacks[id] = deferred.resolve.bind(deferred);
+          promise = deferred.promise;
+        } else {
+          this._callbacks[id] = null;
+        }
         send({ 
           type   : INVOKE,
           method : name,
           args   : serialized
         });
-        return deferred.promise;
+        return promise;
       };
     };
 
