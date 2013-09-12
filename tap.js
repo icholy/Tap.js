@@ -3,7 +3,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
 
   makeDeferred = makeDeferred || function () { return null; };
 
-  var IdGeneraor = (function () {
+  var IdGenerator = (function () {
 
 
     /**
@@ -11,9 +11,9 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
      * 
      * credit: http://stackoverflow.com/a/6249043/215969
      *
-     * @class IdGeneraor
+     * @class IdGenerator
      */
-    var IdGeneraor = function IdGeneraor () {
+    var IdGenerator = function IdGenerator () {
       this._nextIndex = [0, 0, 0];
       this._chars     = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     };
@@ -24,7 +24,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
      * @method next
      * @return {String} id
      */
-    IdGeneraor.prototype.next = function() {
+    IdGenerator.prototype.next = function() {
       var a   = this._nextIndex[0],
           b   = this._nextIndex[1],
           c   = this._nextIndex[2],
@@ -41,7 +41,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       return id;
     };
 
-    return IdGeneraor;
+    return IdGenerator;
 
   }).call(null);
 
@@ -77,7 +77,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
     var Tap = function (obj) {
       this._obj       = obj;
       this._callbacks = {};
-      this._generator = new IdGeneraor();
+      this._generator = new IdGenerator();
       recv(this.onMessage.bind(this));
     };
 
