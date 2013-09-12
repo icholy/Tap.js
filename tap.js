@@ -162,15 +162,15 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
      * @return {Function} callable function
      */
     Tap.prototype.deserializeCallback = function (arg) {
-      var _this = this;
       return function () {
-        var args = toArray(arguments);
+        var args       = toArray(arguments),
+            serialized = this.serializeArguments(args);
         send({ 
           type : CALLBACK,
           id   : arg.id,
-          args : _this.serializeArguments(args)
+          args : serialized
         });
-      };
+      }.bind(this);
     };
 
     /**
@@ -198,21 +198,15 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
         var args       = toArray(arguments),
             serialized = this.serializeArguments(args),
             deferred   = makeDeferred(),
-            id         = this._generator.next(),
-            promise;
-        if (!isNull(deferred)) {
-          this._callbacks[id] = deferred;
-          promise = deferred.promise;
-        } else {
-          this._callbacks[id] = null;
-        }
+            id         = this._generator.next();
+        this._callbacks[id] = deferred;
         send({ 
           type   : INVOKE,
           method : name,
           id     : id,
           args   : serialized
         });
-        return promise;
+        return isNull(deferred) ? undefined : deferred.promise;
       };
     };
 
@@ -223,10 +217,9 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
      * @param {String} name - method name
      */
     Tap.prototype.register = function (/* name, ... */) {
-      toArray(arguments).reduce(function (acc, methodName) {
-        acc[methodName] = acc.invokeFn(methodName);
-        return acc;
-      }, this);
+      toArray(arguments).forEach(function (methodName) {
+        this[methodName] = this.invokeFn(methodName);
+      }.bind(this));
     };
 
     return Tap;
