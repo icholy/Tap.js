@@ -1,4 +1,4 @@
-# TAP: Transport Agnostic Object Proxy
+# TAP: Transport Agnostic Object Proxy ![](https://travis-ci.org/icholy/Tap.js.png)
 
 **worker.js**
 
