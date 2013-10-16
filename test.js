@@ -56,7 +56,7 @@ describe("Tap", function () {
     obj.reset();
     remote = new Remote(obj);
     local = new Local();
-    local.register("foo", "bar", "baz", "bat", "bap", "poop");
+    local.methods("foo", "bar", "baz", "bat", "bap", "poop");
   });
 
   it("should be able to call a remote method", function () {

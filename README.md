@@ -44,7 +44,7 @@ var Local = Tap.local(worker, makeDeferred);
 var local = new Local();
 
 // register methods available on remote object
-local.register("foo", "bar", "baz");
+local.methods("foo", "bar", "baz");
 
 // invoke methods
 local.foo();

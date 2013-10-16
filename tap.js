@@ -216,7 +216,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
      * @method register
      * @param {String} name - method name
      */
-    Tap.prototype.register = function (/* name, ... */) {
+    Tap.prototype.methods = function (/* name, ... */) {
       toArray(arguments).forEach(function (methodName) {
         this[methodName] = this.invokeFn(methodName);
       }.bind(this));
