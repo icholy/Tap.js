@@ -3,46 +3,56 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
 
   makeDeferred = makeDeferred || function () { return null; };
 
-  var IdGenerator = (function () {
+  var IdGenerator = (function() {
 
+    var defaultCharset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()_-+=[]{};:?/.>,<|".split("");
 
-    /**
-     * unique id string generator
-     * 
-     * credit: http://stackoverflow.com/a/6249043/215969
-     *
-     * @class IdGenerator
-     */
-    var IdGenerator = function IdGenerator () {
-      this._nextIndex = [0, 0, 0];
-      this._chars     = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    var IdGenerator = function IdGenerator(charset) {
+      this._charset = (typeof charset === "undefined") ? defaultCharset : charset;
+      this.reset();
     };
 
-    /**
-     * get the next id string
-     *
-     * @method next
-     * @return {String} id
-     */
-    IdGenerator.prototype.next = function() {
-      var a   = this._nextIndex[0],
-          b   = this._nextIndex[1],
-          c   = this._nextIndex[2],
-          id  = this._chars[a] + this._chars[b] + this._chars[c],
-          num = this._chars.length;
-      a = ++a % num;
-      if (!a) {
-        b = ++b % num; 
-        if (!b) {
-          c = ++c % num; 
+    IdGenerator.prototype._str = function() {
+      var str = "",
+      perm = this._perm,
+      chars = this._charset,
+      len = perm.length,
+      i;
+      for (i = 0; i < len; i++) {
+        str += chars[perm[i]];
+      }
+      return str;
+    };
+
+    IdGenerator.prototype._inc = function() {
+      var perm = this._perm,
+      max = this._charset.length - 1,
+      i;
+      for (i = 0; true; i++) {
+        if (i > perm.length - 1) {
+          perm.push(0);
+          return;
+        } else {
+          perm[i]++;
+          if (perm[i] > max) {
+            perm[i] = 0;
+          } else {
+            return;
+          }
         }
       }
-      this._nextIndex = [a, b, c]; 
-      return id;
+    };
+
+    IdGenerator.prototype.reset = function() {
+      this._perm = [];
+    };
+
+    IdGenerator.prototype.next = function() {
+      this._inc();
+      return this._str();
     };
 
     return IdGenerator;
-
   }).call(null);
 
   return (function () {
