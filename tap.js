@@ -13,10 +13,10 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
     };
 
     IdGenerator.prototype._str = function() {
-      var str = "",
-      perm = this._perm,
-      chars = this._charset,
-      len = perm.length,
+      var str   = "",
+          perm  = this._perm,
+          chars = this._charset,
+          len   = perm.length,
       i;
       for (i = 0; i < len; i++) {
         str += chars[perm[i]];
@@ -26,8 +26,8 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
 
     IdGenerator.prototype._inc = function() {
       var perm = this._perm,
-      max = this._charset.length - 1,
-      i;
+          max  = this._charset.length - 1,
+          i;
       for (i = 0; true; i++) {
         if (i > perm.length - 1) {
           perm.push(0);
