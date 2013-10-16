@@ -25,6 +25,14 @@ var Remote = Tap.remote();
 
 // create a Remote instance wrapping the obj
 var remote = new Remote(obj);
+
+// events can be send in either direction
+var console = {
+  log: function () {
+    var msg = Array.prototype.join(arguments, " ");
+    remote.send("console", msg);
+  }
+};
 ```
 
 **main.js**
@@ -61,4 +69,9 @@ local.baz().then(function (x) {
   console.log("x:", x);
 });
 
+// recieve events
+local.on(
+  "console",
+  console.log.bind(console, "worker:")
+);
 ```

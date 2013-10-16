@@ -49,7 +49,10 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
 
     var CALLBACK = 0,
         INVOKE   = 1,
-        RETURN   = 2;
+        RETURN   = 2,
+        EVENT    = 3;
+
+    var EVENT_PREFIX = "_event_";
 
     // helper functions
     var isFunction = function (x) {
@@ -118,6 +121,14 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
             deferred.resolve(ret);
           }
           delete this._callbacks[id];
+          break;
+
+        // other ends sent an event
+        case EVENT:
+          var callback = this._callbacks[msg.name]
+          if (typeof callback !== "undefined") {
+            callback.call(null, msg.payload);
+          }
           break;
 
         // other end is screwing around
@@ -213,13 +224,34 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
     /**
      * register available proxy methods
      *
-     * @method register
+     * @method methods
      * @param {String} name - method name
      */
     Tap.prototype.methods = function (/* name, ... */) {
       toArray(arguments).forEach(function (methodName) {
         this[methodName] = this.invokeFn(methodName);
       }.bind(this));
+    };
+
+    /**
+     * send a named event
+     *
+     * @method send
+     * @param {String} name - event name
+     * @param {Object} payload - event payload
+     */
+    Tap.prototype.send = function (name, payload) {
+      var eventName = EVENT_PREFIX + name;
+      send({
+        type    : EVENT,
+        name    : eventName,
+        payload : payload
+      });
+    };
+
+    Tap.prototype.on = function (name, callback) {
+      var eventName = EVENT_PREFIX + name;
+      this._callbacks[eventName] = callback;
     };
 
     return Tap;

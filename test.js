@@ -108,4 +108,22 @@ describe("Tap", function () {
     });
   });
 
+  it("should be able to send simple events", function (done) {
+    local.on("event1", done);
+    remote.send("event1", null);
+  });
+
+  it("should send event payloads", function (done) {
+    var x = { foo: "bar" };
+    local.on("event1", function (payload) {
+      expect(payload.foo).to.equal(x.foo);
+      done();
+    });
+    remote.send("event1", x);
+  });
+
+  it("should not error when sending an event that has no callback", function () {
+    remote.send("does_not_exist", null);
+  });
+
 });
