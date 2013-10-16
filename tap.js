@@ -3,7 +3,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
 
   makeDeferred = makeDeferred || function () { return null; };
 
-  var IdGenerator = (function() {
+  var IdGenerator = (function () {
 
     var defaultCharset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()_-+=[]{};:?/.>,<|".split("");
 
@@ -12,7 +12,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       this.reset();
     };
 
-    IdGenerator.prototype._str = function() {
+    IdGenerator.prototype._str = function () {
       var str   = "",
           perm  = this._perm,
           chars = this._charset,
@@ -24,7 +24,7 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       return str;
     };
 
-    IdGenerator.prototype._inc = function() {
+    IdGenerator.prototype._inc = function () {
       var perm = this._perm,
           max  = this._charset.length - 1,
           i;
@@ -43,11 +43,11 @@ var tapFactory = function (send, recv, makeDeferred, undefined) {
       }
     };
 
-    IdGenerator.prototype.reset = function() {
+    IdGenerator.prototype.reset = function () {
       this._perm = [];
     };
 
-    IdGenerator.prototype.next = function() {
+    IdGenerator.prototype.next = function () {
       this._inc();
       return this._str();
     };
