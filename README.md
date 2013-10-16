@@ -69,7 +69,7 @@ local.baz().then(function (x) {
   console.log("x:", x);
 });
 
-// recieve events
+// receive events
 local.on(
   "console",
   console.log.bind(console, "worker:")
