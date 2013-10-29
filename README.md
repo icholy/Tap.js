@@ -29,7 +29,7 @@ var remote = new Remote(obj);
 // events can be sent in either direction
 var console = {
   log: function () {
-    var msg = Array.prototype.join(arguments, " ");
+    var msg = Array.prototype.join.call(arguments, " ");
     remote.send("console", msg);
   }
 };
